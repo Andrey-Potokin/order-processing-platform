@@ -4,15 +4,7 @@ target/
 !**/src/test/**/target/
 
 ### IntelliJ IDEA ###
-.idea/modules.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
-*.iws
-*.iml
-*.ipr
-.idea/encodings.xml
-.idea/uiDesigner.xml
+.idea/
 
 ### Eclipse ###
 .apt_generated
@@ -37,7 +29,7 @@ build/
 .vscode/
 
 ### GIGA IDE ###
-.gigaide
+.gigaide/
 
 ### Mac OS ###
 .DS_Store
