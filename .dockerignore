@@ -1,0 +1,10 @@
+*
+
+!pom.xml
+!api-gateway/
+!auth-service/
+!user-service/
+!product-service/
+!inventory-service/
+!order-service/
+!notification-service/
