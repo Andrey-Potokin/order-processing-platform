@@ -1,0 +1,42 @@
+apiVersion: v2
+name: order-processing-platform
+version: 1.0.0
+appVersion: 1.0.0
+description: Umbrella chart for the entire Order Processing Platform
+type: application
+
+dependencies:
+  - name: api-gateway
+    version: 1.0.0
+    alias: api-gateway
+    condition: api-gateway.enabled
+
+  - name: auth-service
+    version: 1.0.0
+    alias: auth-service
+    condition: auth-service.enabled
+
+  - name: user-service
+    version: 1.0.0
+    alias: user-service
+    condition: user-service.enabled
+
+  - name: product-service
+    version: 1.0.0
+    alias: product-service
+    condition: product-service.enabled
+
+  - name: inventory-service
+    version: 1.0.0
+    alias: inventory-service
+    condition: inventory-service.enabled
+
+  - name: order-service
+    version: 1.0.0
+    alias: order-service
+    condition: order-service.enabled
+
+  - name: notification-service
+    version: 1.0.0
+    alias: notification-service
+    condition: notification-service.enabled

@@ -1,0 +1,81 @@
+# Включение/отключение сервисов
+api-gateway:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: api-gateway
+    tag: latest
+  service:
+    type: ClusterIP
+    port: 8080
+
+auth-service:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: auth-service
+    tag: latest
+  service:
+    type: ClusterIP
+    port: 8081
+
+user-service:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: user-service
+    tag: latest
+  service:
+    type: ClusterIP
+    port: 8086
+
+product-service:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: product-service
+    tag: latest
+  service:
+    type: ClusterIP
+    port: 8085
+
+inventory-service:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: inventory-service
+    tag: latest
+  service:
+    type: ClusterIP
+    port: 8082
+
+order-service:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: order-service
+    tag: latest
+  service:
+    type: ClusterIP
+    port: 8084
+
+notification-service:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: notification-service
+    tag: latest
+  service:
+    type: ClusterIP
+    port: 8083
+
+# Общие настройки (можно переопределить в каждом)
+global:
+  imagePullPolicy: IfNotPresent
+  resources: {}
+    # limits:
+    #   cpu: 500m
+    #   memory: 512Mi
+    # requests:
+    #   cpu: 200m
+    #   memory: 256Mi
