@@ -1,0 +1,30 @@
+{
+  "type": "record",
+  "name": "UserCreatedEvent",
+  "namespace": "com.example.auth.event",
+  "fields": [
+    {
+      "name": "userId",
+      "type": "long"
+    },
+    {
+      "name": "username",
+      "type": "string"
+    },
+    {
+      "name": "role",
+      "type": {
+        "type": "enum",
+        "name": "UserRole",
+        "symbols": ["USER", "MANAGER", "ADMIN"]
+      }
+    },
+    {
+      "name": "timestamp",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      }
+    }
+  ]
+}

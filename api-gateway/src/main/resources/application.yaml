@@ -4,6 +4,16 @@ server:
 spring:
   application:
     name: api-gateway
+  codec:
+    max-in-memory-size: 16MB
+
+app:
+  services:
+    auth-url: http://localhost:8081
+    inventory-grpc-host: localhost
+    inventory-grpc-port: 8082
+    product-grpc-host: localhost
+    product-grpc-port: 8085
 
 management:
   endpoints:
@@ -17,4 +27,3 @@ management:
 logging:
   level:
     com.example.gateway: DEBUG
-    org.springframework: INFO

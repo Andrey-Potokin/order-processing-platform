@@ -16,6 +16,16 @@ services:
       - "8081:8081"
     environment:
       - PORT=8081
+      - SPRING_R2DBC_URL=r2dbc:postgresql://postgres:5432/authdb
+      - SPRING_R2DBC_USERNAME=auth_user
+      - SPRING_R2DBC_PASSWORD=auth_pass
+      - JWT_SECRET=yourSuperSecretKeyWithAtLeast32CharactersForHS512
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9093
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
 
   user-service:
     build:
@@ -61,3 +71,53 @@ services:
       - "8083:8083"
     environment:
       - PORT=8083
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.3.0
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.3.0
+    depends_on:
+      - kafka
+    environment:
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:9093
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+    ports:
+      - "8087:8081"
+
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: authdb
+      POSTGRES_USER: auth_user
+      POSTGRES_PASSWORD: auth_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U auth_user -d authdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

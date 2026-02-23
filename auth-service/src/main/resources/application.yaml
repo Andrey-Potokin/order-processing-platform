@@ -4,6 +4,35 @@ server:
 spring:
   application:
     name: auth-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/authdb
+    username: auth_user
+    password: auth_pass
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/authdb
+    username: auth_user
+    password: auth_pass
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+    properties:
+      schema.registry.url: ${schema.registry.url}
+      specific.avro.reader: true
+
+schema:
+  registry:
+    url: ${SCHEMA_REGISTRY_URL:http://localhost:8081}
+
+jwt:
+  secret: ${JWT_SECRET:yourSuperSecretKeyWithAtLeast32CharactersForHS512}
+  expiration-hours: 2
+  refresh-expiration-days: 7
 
 management:
   endpoints:
@@ -16,5 +45,4 @@ management:
 
 logging:
   level:
-    com.example.gateway: DEBUG
-    org.springframework: INFO
+    com.example.auth: DEBUG

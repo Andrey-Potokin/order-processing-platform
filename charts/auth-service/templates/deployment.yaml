@@ -4,6 +4,7 @@ metadata:
   name: {{ .Release.Name }}-auth-service
   labels:
     app: auth-service
+    {{- include "auth-service.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
@@ -15,6 +16,7 @@ spec:
     metadata:
       labels:
         app: auth-service
+        {{- include "auth-service.labels" . | nindent 8 }}
     spec:
       containers:
         - name: auth-service
@@ -22,8 +24,55 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: 8081
+              name: http
           env:
-            - name: PORT
+            - name: SERVER_PORT
               value: "8081"
+            - name: SPRING_R2DBC_URL
+              value: "r2dbc:postgresql://postgres:5432/authdb"
+            - name: SPRING_R2DBC_USERNAME
+              value: "auth_user"
+            - name: SPRING_R2DBC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: auth-db-secret
+                  key: password
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: jwt-secret
+            - name: SPRING_KAFKA_BOOTSTRAP-SERVERS
+              value: "kafka:9092"
+          envFrom:
+            - configMapRef:
+                name: common-config
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8081
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+            initialDelaySeconds: 20
+            periodSeconds: 5
           resources:
-{{ toYaml .Values.resources | indent 12 }}
+            {{- toYaml .Values.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: auth-db-secret
+type: Opaque
+data:
+  password: YXV0aF9wYXNz  # echo -n 'auth_pass' | base64
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: jwt-secret
+type: Opaque
+data:
+  jwt-secret: eW91clN1cGVyU2VjcmV0S2V5V2l0aEF0TGVhc3QzMkNoYXJhY3RlcnNGb3JIUzUxMg==  # base64(jwt.secret)
