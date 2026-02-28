@@ -26,12 +26,12 @@ import java.util.Map;
  * @see SenderOptions
  */
 @Configuration
-public class ReactiveKafkaConfig {
+public class KafkaProducerConfig {
 
     @Value("${spring.kafka.bootstrap-servers}")
     String bootstrapServers;
 
-    @Value("${schema.registry.url}")
+    @Value("${spring.kafka.properties.schema.registry.url}")
     String schemaRegistryUrl;
 
     /**

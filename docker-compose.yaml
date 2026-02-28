@@ -1,123 +1,225 @@
 services:
-  api-gateway:
-    build:
-      context: .
-      dockerfile: api-gateway/Dockerfile
-    ports:
-      - "8080:8080"
-    environment:
-      - PORT=8080
-
-  auth-service:
-    build:
-      context: .
-      dockerfile: auth-service/Dockerfile
-    ports:
-      - "8081:8081"
-    environment:
-      - PORT=8081
-      - SPRING_R2DBC_URL=r2dbc:postgresql://postgres:5432/authdb
-      - SPRING_R2DBC_USERNAME=auth_user
-      - SPRING_R2DBC_PASSWORD=auth_pass
-      - JWT_SECRET=yourSuperSecretKeyWithAtLeast32CharactersForHS512
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9093
-    depends_on:
-      postgres:
-        condition: service_healthy
-      kafka:
-        condition: service_started
-
-  user-service:
-    build:
-      context: .
-      dockerfile: user-service/Dockerfile
-    ports:
-      - "8086:8086"
-    environment:
-      - PORT=8086
-
-  product-service:
-    build:
-      context: .
-      dockerfile: product-service/Dockerfile
-    ports:
-      - "8085:8085"
-    environment:
-      - PORT=8085
-
-  inventory-service:
-    build:
-      context: .
-      dockerfile: inventory-service/Dockerfile
-    ports:
-      - "8082:8082"
-    environment:
-      - PORT=8082
-
-  order-service:
-    build:
-      context: .
-      dockerfile: order-service/Dockerfile
-    ports:
-      - "8084:8084"
-    environment:
-      - PORT=8084
-
-  notification-service:
-    build:
-      context: .
-      dockerfile: notification-service/Dockerfile
-    ports:
-      - "8083:8083"
-    environment:
-      - PORT=8083
-
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.3.0
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-    ports:
-      - "2181:2181"
+#  api-gateway:
+#    build:
+#      context: .
+#      dockerfile: api-gateway/Dockerfile
+#    hostname: api-gateway
+#    container_name: api-gateway
+#    ports:
+#      - "8080:8080"
+#    environment:
+#      - PORT=8080
+#    networks:
+#      - event-network
+#
+#  auth-service:
+#    build:
+#      context: .
+#      dockerfile: auth-service/Dockerfile
+#    hostname: auth-service
+#    container_name: auth-service
+#    ports:
+#      - "8081:8081"
+#    environment:
+#      - PORT=8081
+#      - SPRING_R2DBC_URL=r2dbc:postgresql://postgres:5432/authdb
+#      - SPRING_R2DBC_USERNAME=auth_user
+#      - SPRING_R2DBC_PASSWORD=auth_pass
+#      - JWT_SECRET=yourSuperSecretKeyWithAtLeast32CharactersForHS512
+#      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+#    depends_on:
+#      postgres:
+#        condition: service_healthy
+#      kafka:
+#        condition: service_healthy
+#      schema-registry:
+#        condition: service_healthy
+#    networks:
+#      - event-network
+#
+#  user-service:
+#    build:
+#      context: .
+#      dockerfile: user-service/Dockerfile
+#    hostname: user-service
+#    container_name: user-service
+#    ports:
+#      - "8086:8086"
+#    environment:
+#      - PORT=8086
+#      - SPRING_R2DBC_URL=r2dbc:postgresql://postgres:5432/userdb
+#      - SPRING_R2DBC_USERNAME=user_user
+#      - SPRING_R2DBC_PASSWORD=user_pass
+#      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+#      - SCHEMA_REGISTRY_URL=http://schema-registry:8081
+#      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://auth-service:8081
+#    depends_on:
+#      postgres:
+#        condition: service_healthy
+#      kafka:
+#        condition: service_healthy
+#      schema-registry:
+#        condition: service_healthy
+#    networks:
+#      - event-network
+#
+#  product-service:
+#    build:
+#      context: .
+#      dockerfile: product-service/Dockerfile
+#    hostname: product-service
+#    container_name: product-service
+#    ports:
+#      - "8085:8085"
+#    environment:
+#      - PORT=8085
+#    networks:
+#      - event-network
+#
+#  inventory-service:
+#    build:
+#      context: .
+#      dockerfile: inventory-service/Dockerfile
+#    hostname: inventory-service
+#    container_name: inventory-service
+#    ports:
+#      - "8082:8082"
+#    environment:
+#      - PORT=8082
+#    networks:
+#      - event-network
+#
+#  order-service:
+#    build:
+#      context: .
+#      dockerfile: order-service/Dockerfile
+#    hostname: order-service
+#    container_name: order-service
+#    ports:
+#      - "8084:8084"
+#    environment:
+#      - PORT=8084
+#    networks:
+#      - event-network
+#
+#  notification-service:
+#    build:
+#      context: .
+#      dockerfile: notification-service/Dockerfile
+#    hostname: notification-service
+#    container_name: notification-service
+#    ports:
+#      - "8083:8083"
+#    environment:
+#      - PORT=8083
+#    networks:
+#      - event-network
 
   kafka:
-    image: confluentinc/cp-kafka:7.3.0
-    depends_on:
-      - zookeeper
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:9093
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    image: confluentinc/cp-kafka:8.1.1
+    hostname: kafka
+    container_name: kafka
+    user: "0"
     ports:
       - "9092:9092"
+      - "9093:9093"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:9093,CONTROLLER://0.0.0.0:9091
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9093
+      KAFKA_LISTENER_NAME_PLAINTEXT_ADVERTISED_HOST_NAME: kafka
+      KAFKA_LISTENER_NAME_PLAINTEXT_HOST_ADVERTISED_HOST_NAME: localhost
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9091"
+      KAFKA_LOG_DIRS: /tmp/kafka-logs
+      KAFKA_NUM_PARTITIONS: 3
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    volumes:
+      - kafka_data:/tmp/kafka-logs
+    networks:
+      - event-network
+    healthcheck:
+      test: [ "CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092" ]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 180s
 
   schema-registry:
-    image: confluentinc/cp-schema-registry:7.3.0
+    image: confluentinc/cp-schema-registry:8.1.1
+    hostname: schema-registry
+    container_name: schema-registry
     depends_on:
-      - kafka
-    environment:
-      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:9093
-      SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+      kafka:
+        condition: service_healthy
     ports:
       - "8087:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:9092
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+      SCHEMA_REGISTRY_KAFKASTORE_TOPIC: _schemas
+      SCHEMA_REGISTRY_KAFKASTORE_INIT_TIMEOUT_MS: 60000
+      SCHEMA_REGISTRY_REQUEST_TIMEOUT_MS: 60000
+      SCHEMA_REGISTRY_SESSION_TIMEOUT_MS: 30000
+      SCHEMA_REGISTRY_KAFKASTORE_TIMEOUT_MS: 60000
+    networks:
+      - event-network
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  postgres:
-    image: postgres:15
+  auth-db:
+    image: postgres:16.5
+    container_name: auth-db
     environment:
       POSTGRES_DB: authdb
       POSTGRES_USER: auth_user
       POSTGRES_PASSWORD: auth_pass
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - auth_data:/var/lib/postgresql/data
+    networks:
+      - event-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U auth_user -d authdb"]
+      test: [ "CMD-SHELL", "pg_isready -U auth_user -d authdb" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  user-db:
+    image: postgres:16.5
+    container_name: user-db
+    environment:
+      POSTGRES_DB: userdb
+      POSTGRES_USER: user_user
+      POSTGRES_PASSWORD: user_pass
+    ports:
+      - "5434:5432"
+    volumes:
+      - user_data:/var/lib/postgresql/data
+    networks:
+      - event-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U user_user -d userdb" ]
       interval: 10s
       timeout: 5s
       retries: 5
 
 volumes:
-  postgres_data:
+  auth_data:
+  user_data:
+  kafka_data:
+
+networks:
+  event-network:
+    driver: bridge

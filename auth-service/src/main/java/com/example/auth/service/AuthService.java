@@ -98,7 +98,7 @@ public class AuthService {
             .flatMap(savedUser -> {
                 UserCreatedEvent event = UserCreatedEvent.newBuilder()
                     .setUserId(savedUser.getId())
-                    .setUsername(savedUser.getUsername())
+                    .setEmail(savedUser.getEmail())
                     .setRole(com.example.auth.event.UserRole.USER)
                     .setTimestamp(Instant.now())
                     .build();

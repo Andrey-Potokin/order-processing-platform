@@ -3,7 +3,7 @@ FROM maven:3.8-openjdk-17 AS builder
 WORKDIR /app
 COPY pom.xml .
 COPY user-service ./user-service
-RUN mvn -f user-service/pom.xml clean package -DskipTests --no-transfer-progress
+RUN mvn -f user-service/pom.xml clean package -DskipTests
 
 # --- Stage 2: Run ---
 FROM eclipse-temurin:17-jre-jammy

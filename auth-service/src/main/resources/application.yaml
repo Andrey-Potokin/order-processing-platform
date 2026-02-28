@@ -5,7 +5,7 @@ spring:
   application:
     name: auth-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/authdb
+    url: jdbc:postgresql://localhost:5433/authdb
     username: auth_user
     password: auth_pass
     driver-class-name: org.postgresql.Driver
@@ -13,21 +13,17 @@ spring:
     enabled: true
     change-log: classpath:/db/changelog/db.changelog-master.yaml
   r2dbc:
-    url: r2dbc:postgresql://localhost:5432/authdb
+    url: r2dbc:postgresql://localhost:5433/authdb
     username: auth_user
     password: auth_pass
   kafka:
-    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9093}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
     properties:
-      schema.registry.url: ${schema.registry.url}
+      schema.registry.url: ${SCHEMA_REGISTRY_URL:http://localhost:8087}
       specific.avro.reader: true
-
-schema:
-  registry:
-    url: ${SCHEMA_REGISTRY_URL:http://localhost:8081}
 
 jwt:
   secret: ${JWT_SECRET:yourSuperSecretKeyWithAtLeast32CharactersForHS512}

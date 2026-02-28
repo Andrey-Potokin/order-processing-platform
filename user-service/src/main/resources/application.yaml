@@ -4,6 +4,31 @@ server:
 spring:
   application:
     name: user-service
+  datasource:
+    url: jdbc:postgresql://localhost:5434/userdb
+    username: user_user
+    password: user_pass
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5434/userdb
+    username: user_user
+    password: user_pass
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9093}
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
+    properties:
+      schema.registry.url: ${SCHEMA_REGISTRY_URL:http://localhost:8087}
+      specific.avro.reader: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8081
 
 management:
   endpoints:
@@ -16,5 +41,4 @@ management:
 
 logging:
   level:
-    com.example.gateway: DEBUG
-    org.springframework: INFO
+    com.example.user: DEBUG

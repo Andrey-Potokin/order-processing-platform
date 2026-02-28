@@ -1,4 +1,4 @@
-package com.example.auth.config;
+package com.example.user.config;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
